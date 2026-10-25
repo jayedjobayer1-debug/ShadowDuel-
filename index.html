@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shadow Duel</title>
+<style>html,body{margin:0;height:100%;background:#111;color:white;font-family:Arial;overflow:hidden}canvas{width:100vw;height:100vh;display:block}#help{position:fixed;top:10px;left:10px;font-size:13px;opacity:.8}</style></head>
+<body><div id="help">A/D move · W jump · J punch · K kick · L block · R restart</div><canvas id="g"></canvas>
+<script>
+const c=document.getElementById('g'),x=c.getContext('2d');let k={},p,e,over='';
+function size(){c.width=innerWidth;c.height=innerHeight}onresize=size;size();
+onkeydown=a=>{k[a.key.toLowerCase()]=1;if(a.key.toLowerCase()=='r')reset()};onkeyup=a=>k[a.key.toLowerCase()]=0;
+function f(x,n){return{x,y:0,v:0,h:100,n,cd:0,atk:0,block:0,dir:1}}
+function reset(){p=f(180,'RIN');e=f(innerWidth-180,'VEX');e.dir=-1;over=''}reset();
+function hit(a,b,d,r){if(a.cd)return;if(Math.abs(a.x-b.x)<r&&Math.abs(a.y-b.y)<50){if(!b.block)b.h=Math.max(0,b.h-d);a.atk=10;a.cd=18}}
+function update(){
+ [p,e].forEach(q=>{q.cd=Math.max(0,q.cd-1);q.atk=Math.max(0,q.atk-1);q.y+=q.v;q.v+=.9;if(q.y>=0){q.y=0;q.v=0}});
+ p.v=k.a?-4:k.d?4:0;p.dir=e.x>p.x?1:-1;p.block=!!k.l;
+ if(k.w&&p.y==0)p.vy=-12;if(k.w&&p.y==0)p.v=-12;
+ if(k.j)hit(p,e,8,75);if(k.k)hit(p,e,12,85);
+ let d=p.x-e.x;e.dir=p.x>e.x?1:-1;e.v=Math.abs(d)>75?(d>0?2:-2):0;if(Math.abs(d)<=80&&Math.random()<.04)hit(e,p,9,80);
+ p.x=Math.max(50,Math.min(innerWidth-50,p.x+p.v));e.x=Math.max(50,Math.min(innerWidth-50,e.x+e.v));
+ if(e.h<=0)over='VICTORY!';if(p.h<=0)over='DEFEAT';
+}
+function drawF(q){let Y=c.height-145-q.y;x.save();x.translate(q.x,Y);x.scale(q.dir,1);x.strokeStyle='#eee';x.fillStyle='#111';x.lineWidth=8;x.lineCap='round';x.beginPath();x.arc(0,-72,18,0,7);x.fill();x.stroke();x.beginPath();x.moveTo(0,-54);x.lineTo(0,-5);x.moveTo(0,-35);x.lineTo(30,-18);x.moveTo(0,-35);x.lineTo(-28,-18);x.moveTo(0,-5);x.lineTo(25,35);x.moveTo(0,-5);x.lineTo(-24,35);x.stroke();x.restore()}
+function bar(a,v,t){x.fillStyle='#333';x.fillRect(a,35,220,18);x.fillStyle='#63e35b';x.fillRect(a,35,220*v/100,18);x.fillStyle='#fff';x.font='bold 14px Arial';x.fillText(t,a,28)}
+function draw(){x.clearRect(0,0,c.width,c.height);x.fillStyle='#161622';x.fillRect(0,c.height-145,c.width,145);bar(25,p.h,'RIN');bar(c.width-245,e.h,'VEX');drawF(p);drawF(e);if(over){x.textAlign='center';x.font='bold 30px Arial';x.fillText(over,c.width/2,c.height/2);x.font='16px Arial';x.fillText('Press R to restart',c.width/2,c.height/2+30);x.textAlign='left'}}
+function loop(){if(!over)update();draw();requestAnimationFrame(loop)}loop();
+</script></body></html>
