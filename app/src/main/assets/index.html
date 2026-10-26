@@ -121,7 +121,8 @@ function bar(x0,y,w,h,value,color){
 
 function draw(){
  x.clearRect(0,0,W,H);
-
+rin.x += joyX * 0.002;
+rin.x = Math.max(0.18, Math.min(0.48, rin.x));
  /* sky */
  let g=x.createLinearGradient(0,0,0,H);
  g.addColorStop(0,"#02040d");
