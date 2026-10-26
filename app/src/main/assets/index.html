@@ -162,7 +162,46 @@ function draw(){
 
  requestAnimationFrame(draw);
 }
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
 
+let joyX = 0;
+let joyY = 0;
+
+joystick.addEventListener("pointermove", (e) => {
+    const r = joystick.getBoundingClientRect();
+
+    let dx = e.clientX - (r.left + r.width / 2);
+    let dy = e.clientY - (r.top + r.height / 2);
+
+    const max = r.width / 2 - 25;
+    const distance = Math.hypot(dx, dy);
+
+    if(distance > max){
+        dx = dx / distance * max;
+        dy = dy / distance * max;
+    }
+
+    stick.style.left = (35 + dx) + "px";
+    stick.style.top = (35 + dy) + "px";
+
+    joyX = dx / max;
+    joyY = dy / max;
+});
+
+joystick.addEventListener("pointerup", () => {
+    stick.style.left = "35px";
+    stick.style.top = "35px";
+    joyX = 0;
+    joyY = 0;
+});
+
+joystick.addEventListener("pointercancel", () => {
+    stick.style.left = "35px";
+    stick.style.top = "35px";
+    joyX = 0;
+    joyY = 0;
+});
 draw();
 </script>
 </body>
