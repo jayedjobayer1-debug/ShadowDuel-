@@ -4,205 +4,118 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Shadow Duel</title>
+
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050816}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-#joystick{
-    position:fixed;
-    left:25px;
-    bottom:30px;
-    width:120px;
-    height:120px;
-    border:3px solid #21bfff;
-    border-radius:50%;
-    background:#21bfff22;
-    box-shadow:0 0 20px #21bfff88;
-    touch-action:none;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050816;
 }
 
-#stick{
-    position:absolute;
-    left:35px;
-    top:35px;
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    background:#21bfff;
-    box-shadow:0 0 15px #21bfff;
- }
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
+}
 </style>
 </head>
+
 <body>
+
 <canvas id="game"></canvas>
 
 <script>
-const c=document.getElementById("game");
-const x=c.getContext("2d");
-let W,H;
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
 function resize(){
- W=c.width=innerWidth;
- H=c.height=innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
-addEventListener("resize",resize);
+
+window.addEventListener("resize", resize);
 resize();
 
-const rin={x:.34,hp:100,color:"#21bfff"};
-const vex={x:.66,hp:100,color:"#ff3158"};
-
-function fighter(p,name){
- const X=W*p.x;
- const ground=H*.73;
- const s=Math.min(W,H)*.0011;
-
- x.save();
- x.translate(X,ground);
-
- /* shadow */
- x.fillStyle="#0008";
- x.beginPath();
- x.ellipse(0,5,55*s*100,12*s*100,0,0,Math.PI*2);
- x.fill();
-
- /* legs */
- x.strokeStyle=p.color;
- x.lineWidth=12;
- x.lineCap="round";
-
- x.beginPath();
- x.moveTo(-10,0); x.lineTo(-25,-65);
- x.moveTo(10,0); x.lineTo(28,-65);
- x.stroke();
-
- /* body */
- x.fillStyle=p.color;
- x.beginPath();
- x.roundRect(-30,-145,60,80,14);
- x.fill();
-
- /* arms */
- x.strokeStyle=p.color;
- x.lineWidth=13;
-
- x.beginPath();
- x.moveTo(-25,-125); x.lineTo(-62,-90);
- x.moveTo(25,-125); x.lineTo(62,-95);
- x.stroke();
-
- /* head */
- x.fillStyle="#f0c7a5";
- x.beginPath();
- x.arc(0,-175,30,0,Math.PI*2);
- x.fill();
-
- /* hair */
- x.fillStyle="#101522";
- x.beginPath();
- x.arc(0,-182,30,Math.PI,Math.PI*2);
- x.fill();
-
- /* name */
- x.font="bold 18px Arial";
- x.textAlign="center";
- x.fillStyle="#fff";
- x.fillText(name,0,35);
-
- x.restore();
-}
-
-function bar(x0,y,w,h,value,color){
- x.fillStyle="#111827";
- x.fillRect(x0,y,w,h);
- x.fillStyle=color;
- x.fillRect(x0,y,w*value/100,h);
- x.strokeStyle="#fff";
- x.strokeRect(x0,y,w,h);
-}
-
 function draw(){
- x.clearRect(0,0,W,H);
 
- /* sky */
- let g=x.createLinearGradient(0,0,0,H);
- g.addColorStop(0,"#02040d");
- g.addColorStop(.55,"#12345a");
- g.addColorStop(1,"#020611");
- x.fillStyle=g;
- x.fillRect(0,0,W,H);
+    const W = canvas.width;
+    const H = canvas.height;
 
- /* moon */
- x.fillStyle="#d9f6ff";
- x.beginPath();
- x.arc(W*.78,H*.18,Math.min(W,H)*.07,0,Math.PI*2);
- x.fill();
+    ctx.clearRect(0,0,W,H);
 
- /* ground */
- x.fillStyle="#10263f";
- x.fillRect(0,H*.5,W,H*.5);
+    /* Sky */
+    const sky = ctx.createLinearGradient(0,0,0,H);
 
- /* arena */
- x.strokeStyle="#20c8ff";
- x.lineWidth=3;
- x.strokeRect(W*.08,H*.57,W*.84,H*.30);
+    sky.addColorStop(0,"#02040d");
+    sky.addColorStop(0.55,"#12345a");
+    sky.addColorStop(1,"#020611");
 
- /* title */
- x.textAlign="center";
- x.font="900 "+Math.max(28,W*.07)+"px Arial";
- x.fillStyle="#e9f8ff";
- x.fillText("SHADOW",W/2,H*.10);
- x.fillStyle="#ff3158";
- x.fillText("DUEL",W/2,H*.17);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
 
- /* health */
- bar(W*.08,H*.23,W*.34,18,rin.hp,"#21bfff");
- bar(W*.58,H*.23,W*.34,18,vex.hp,"#ff3158");
+    /* Moon */
+    ctx.fillStyle = "#d9f6ff";
 
- fighter(rin,"RIN");
- fighter(vex,"VEX");
+    ctx.beginPath();
+    ctx.arc(
+        W*0.78,
+        H*0.18,
+        Math.min(W,H)*0.07,
+        0,
+        Math.PI*2
+    );
+    ctx.fill();
 
- requestAnimationFrame(draw);
+    /* Ground */
+    ctx.fillStyle = "#10263f";
+    ctx.fillRect(0,H*0.5,W,H*0.5);
+
+    /* Arena */
+    ctx.strokeStyle = "#20c8ff";
+    ctx.lineWidth = 3;
+
+    ctx.strokeRect(
+        W*0.08,
+        H*0.57,
+        W*0.84,
+        H*0.30
+    );
+
+    /* Title */
+    ctx.textAlign = "center";
+    ctx.font = "900 " + Math.max(28,W*0.07) + "px Arial";
+
+    ctx.fillStyle = "#e9f8ff";
+    ctx.fillText("SHADOW",W/2,H*0.10);
+
+    ctx.fillStyle = "#ff3158";
+    ctx.fillText("DUEL",W/2,H*0.17);
+
+    /* RIN */
+    ctx.fillStyle = "#21bfff";
+    ctx.fillRect(W*0.30,H*0.55,60,100);
+
+    ctx.fillStyle = "#f0c7a5";
+    ctx.beginPath();
+    ctx.arc(W*0.33,H*0.51,30,0,Math.PI*2);
+    ctx.fill();
+
+    /* VEX */
+    ctx.fillStyle = "#ff3158";
+    ctx.fillRect(W*0.66,H*0.55,60,100);
+
+    ctx.fillStyle = "#f0c7a5";
+    ctx.beginPath();
+    ctx.arc(W*0.69,H*0.51,30,0,Math.PI*2);
+    ctx.fill();
+
+    requestAnimationFrame(draw);
 }
-const joystick = document.getElementById("joystick");
-const stick = document.getElementById("stick");
 
-let joyX = 0;
-let joyY = 0;
-
-joystick.addEventListener("pointermove", (e) => {
-    const r = joystick.getBoundingClientRect();
-
-    let dx = e.clientX - (r.left + r.width / 2);
-    let dy = e.clientY - (r.top + r.height / 2);
-
-    const max = r.width / 2 - 25;
-    const distance = Math.hypot(dx, dy);
-
-    if(distance > max){
-        dx = dx / distance * max;
-        dy = dy / distance * max;
-    }
-
-    stick.style.left = (35 + dx) + "px";
-    stick.style.top = (35 + dy) + "px";
-
-    joyX = dx / max;
-    joyY = dy / max;
-});
-
-joystick.addEventListener("pointerup", () => {
-    stick.style.left = "35px";
-    stick.style.top = "35px";
-    joyX = 0;
-    joyY = 0;
-});
-
-joystick.addEventListener("pointercancel", () => {
-    stick.style.left = "35px";
-    stick.style.top = "35px";
-    joyX = 0;
-    joyY = 0;
-});
 draw();
 </script>
+
 </body>
 </html>
