@@ -42,6 +42,48 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
  #actions{transform:scale(.78);transform-origin:bottom right;bottom:5px}
  #message{top:22%}
 }
+ 
+/* Landscape gaming layout */
+@media (orientation: landscape) {
+  #hud {
+    top: 8px;
+    left: 3%;
+    width: 94%;
+  }
+
+  #controls {
+    height: 42%;
+    min-height: 125px;
+  }
+
+  #joyZone {
+    width: min(25vh, 145px);
+    height: min(25vh, 145px);
+    left: 3%;
+    bottom: 8px;
+  }
+
+  #actions {
+    width: 46%;
+    height: 140px;
+    right: 2%;
+    bottom: 5px;
+  }
+
+  #message {
+    top: 20%;
+  }
+
+  #hint {
+    font-size: 8px;
+  }
+}
+
+button {
+  touch-action: none;
+  user-select: none;
+       }
+          
 </style>
 </head>
 <body>
