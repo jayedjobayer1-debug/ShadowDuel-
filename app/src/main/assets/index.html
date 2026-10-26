@@ -19,13 +19,36 @@ canvas{
     width:100%;
     height:100%;
 }
+    #joystick{
+ position:fixed;
+ left:20px;
+ bottom:30px;
+ width:120px;
+ height:120px;
+ border:3px solid #21bfff;
+ border-radius:50%;
+ background:#21bfff22;
+ touch-action:none;
+}
+#stick{
+ position:absolute;
+ left:35px;
+ top:35px;
+ width:50px;
+ height:50px;
+ border-radius:50%;
+ background:#21bfff;
+    }
 </style>
 </head>
 
 <body>
 
 <canvas id="game"></canvas>
-
+<div id="joystick">
+ <div id="stick"></div>
+</div>
+    
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -37,7 +60,32 @@ function resize(){
 
 window.addEventListener("resize", resize);
 resize();
+const joystick=document.getElementById("joystick");
+const stick=document.getElementById("stick");
 
+let moveX=0;
+
+joystick.addEventListener("pointermove",e=>{
+ const r=joystick.getBoundingClientRect();
+ let dx=e.clientX-(r.left+r.width/2);
+ const max=35;
+
+ dx=Math.max(-max,Math.min(max,dx));
+
+ stick.style.left=(35+dx)+"px";
+ moveX=dx/max;
+});
+
+function resetJoy(){
+ stick.style.left="35px";
+ moveX=0;
+}
+rin.x += moveX * 0.003;
+rin.x = Math.max(0.18,Math.min(0.48,rin.x));
+
+joystick.addEventListener("pointerup",resetJoy);
+joystick.addEventListener("pointercancel",resetJoy);
+    
 function draw(){
 
     const W = canvas.width;
@@ -113,7 +161,7 @@ function draw(){
 
     requestAnimationFrame(draw);
 }
-
+    
 draw();
 </script>
 
