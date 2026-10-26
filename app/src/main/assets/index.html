@@ -2,439 +2,145 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-<title>Shadow Duel 3D</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Shadow Duel</title>
 <style>
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#050816;
-}
-
-canvas{
-    display:block;
-    width:100%;
-    height:100%;
-    touch-action:none;
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050816}
+canvas{display:block;width:100%;height:100%;touch-action:none}
 </style>
 </head>
-
 <body>
-
 <canvas id="game"></canvas>
 
 <script>
-
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-
-let W = 0;
-let H = 0;
+const c=document.getElementById("game");
+const x=c.getContext("2d");
+let W,H;
 
 function resize(){
-
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-
+ W=c.width=innerWidth;
+ H=c.height=innerHeight;
 }
-
-window.addEventListener("resize",resize);
+addEventListener("resize",resize);
 resize();
 
+const rin={x:.34,hp:100,color:"#21bfff"};
+const vex={x:.66,hp:100,color:"#ff3158"};
 
-/* =========================
-   CAMERA
-========================= */
+function fighter(p,name){
+ const X=W*p.x;
+ const ground=H*.73;
+ const s=Math.min(W,H)*.0011;
 
-const camera = {
+ x.save();
+ x.translate(X,ground);
 
-    x:0,
-    y:120,
-    z:-450,
+ /* shadow */
+ x.fillStyle="#0008";
+ x.beginPath();
+ x.ellipse(0,5,55*s*100,12*s*100,0,0,Math.PI*2);
+ x.fill();
 
-    fov:500
+ /* legs */
+ x.strokeStyle=p.color;
+ x.lineWidth=12;
+ x.lineCap="round";
 
-};
+ x.beginPath();
+ x.moveTo(-10,0); x.lineTo(-25,-65);
+ x.moveTo(10,0); x.lineTo(28,-65);
+ x.stroke();
 
+ /* body */
+ x.fillStyle=p.color;
+ x.beginPath();
+ x.roundRect(-30,-145,60,80,14);
+ x.fill();
 
-/* =========================
-   3D PROJECTION
-========================= */
+ /* arms */
+ x.strokeStyle=p.color;
+ x.lineWidth=13;
 
-function project(x,y,z){
+ x.beginPath();
+ x.moveTo(-25,-125); x.lineTo(-62,-90);
+ x.moveTo(25,-125); x.lineTo(62,-95);
+ x.stroke();
 
-    const dz = z - camera.z;
+ /* head */
+ x.fillStyle="#f0c7a5";
+ x.beginPath();
+ x.arc(0,-175,30,0,Math.PI*2);
+ x.fill();
 
-    if(dz <= 1) return null;
+ /* hair */
+ x.fillStyle="#101522";
+ x.beginPath();
+ x.arc(0,-182,30,Math.PI,Math.PI*2);
+ x.fill();
 
-    const scale = camera.fov / dz;
+ /* name */
+ x.font="bold 18px Arial";
+ x.textAlign="center";
+ x.fillStyle="#fff";
+ x.fillText(name,0,35);
 
-    return {
-
-        x:W/2 + (x-camera.x)*scale,
-
-        y:H/2 - (y-camera.y)*scale,
-
-        scale:scale
-
-    };
-
+ x.restore();
 }
 
-
-/* =========================
-   SKY
-========================= */
-
-function drawSky(){
-
-    const sky =
-        ctx.createLinearGradient(
-            0,0,
-            0,H*0.55
-        );
-
-    sky.addColorStop(
-        0,
-        "#02040d"
-    );
-
-    sky.addColorStop(
-        1,
-        "#12345a"
-    );
-
-    ctx.fillStyle = sky;
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H*0.55
-    );
-
+function bar(x0,y,w,h,value,color){
+ x.fillStyle="#111827";
+ x.fillRect(x0,y,w,h);
+ x.fillStyle=color;
+ x.fillRect(x0,y,w*value/100,h);
+ x.strokeStyle="#fff";
+ x.strokeRect(x0,y,w,h);
 }
 
+function draw(){
+ x.clearRect(0,0,W,H);
 
-/* =========================
-   MOON
-========================= */
+ /* sky */
+ let g=x.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,"#02040d");
+ g.addColorStop(.55,"#12345a");
+ g.addColorStop(1,"#020611");
+ x.fillStyle=g;
+ x.fillRect(0,0,W,H);
 
-function drawMoon(){
+ /* moon */
+ x.fillStyle="#d9f6ff";
+ x.beginPath();
+ x.arc(W*.78,H*.18,Math.min(W,H)*.07,0,Math.PI*2);
+ x.fill();
 
-    const x = W*0.75;
-    const y = H*0.22;
+ /* ground */
+ x.fillStyle="#10263f";
+ x.fillRect(0,H*.5,W,H*.5);
 
-    const r =
-        Math.min(W,H)*0.08;
+ /* arena */
+ x.strokeStyle="#20c8ff";
+ x.lineWidth=3;
+ x.strokeRect(W*.08,H*.57,W*.84,H*.30);
 
+ /* title */
+ x.textAlign="center";
+ x.font="900 "+Math.max(28,W*.07)+"px Arial";
+ x.fillStyle="#e9f8ff";
+ x.fillText("SHADOW",W/2,H*.10);
+ x.fillStyle="#ff3158";
+ x.fillText("DUEL",W/2,H*.17);
 
-    const glow =
-        ctx.createRadialGradient(
-            x,y,r*0.2,
-            x,y,r*3
-        );
+ /* health */
+ bar(W*.08,H*.23,W*.34,18,rin.hp,"#21bfff");
+ bar(W*.58,H*.23,W*.34,18,vex.hp,"#ff3158");
 
-    glow.addColorStop(
-        0,
-        "#a9eaff99"
-    );
+ fighter(rin,"RIN");
+ fighter(vex,"VEX");
 
-    glow.addColorStop(
-        1,
-        "#2196ff00"
-    );
-
-    ctx.fillStyle = glow;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        r*3,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle =
-        "#d9f6ff";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        r,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
+ requestAnimationFrame(draw);
 }
 
-
-/* =========================
-   GROUND
-========================= */
-
-function drawGround(){
-
-    const horizon =
-        H*0.50;
-
-
-    const ground =
-        ctx.createLinearGradient(
-            0,
-            horizon,
-            0,
-            H
-        );
-
-    ground.addColorStop(
-        0,
-        "#132c4b"
-    );
-
-    ground.addColorStop(
-        1,
-        "#020611"
-    );
-
-    ctx.fillStyle =
-        ground;
-
-    ctx.fillRect(
-        0,
-        horizon,
-        W,
-        H-horizon
-    );
-
-
-    /* perspective grid */
-
-    ctx.strokeStyle =
-        "#159dff55";
-
-    ctx.lineWidth = 1;
-
-
-    for(let i=1;i<14;i++){
-
-        const t=i/14;
-
-        const y =
-            horizon +
-            Math.pow(t,1.8) *
-            (H-horizon);
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            0,
-            y
-        );
-
-        ctx.lineTo(
-            W,
-            y
-        );
-
-        ctx.stroke();
-
-    }
-
-
-    /* vertical lines */
-
-    for(
-        let i=-12;
-        i<=12;
-        i++
-    ){
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            W/2,
-            horizon
-        );
-
-        ctx.lineTo(
-            W/2 +
-            i*W*0.13,
-            H
-        );
-
-        ctx.stroke();
-
-    }
-
-}
-
-
-/* =========================
-   ARENA
-========================= */
-
-function drawArena(){
-
-    const y =
-        H*0.58;
-
-
-    ctx.strokeStyle =
-        "#20c8ff";
-
-    ctx.lineWidth = 3;
-
-    ctx.shadowColor =
-        "#008cff";
-
-    ctx.shadowBlur = 18;
-
-
-    ctx.strokeRect(
-
-        W*0.12,
-        y,
-
-        W*0.76,
-        H*0.29
-
-    );
-
-
-    ctx.shadowBlur = 0;
-
-
-    /* center line */
-
-    ctx.strokeStyle =
-        "#ff3858";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        W/2,
-        y
-    );
-
-    ctx.lineTo(
-        W/2,
-        H*0.87
-    );
-
-    ctx.stroke();
-
-}
-
-
-/* =========================
-   TITLE
-========================= */
-
-function drawTitle(){
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.font =
-        "900 " +
-        Math.max(
-            28,
-            W*0.07
-        ) +
-        "px Arial";
-
-
-    ctx.shadowColor =
-        "#159dff";
-
-    ctx.shadowBlur = 20;
-
-
-    ctx.fillStyle =
-        "#e9f8ff";
-
-
-    ctx.fillText(
-
-        "SHADOW",
-
-        W/2,
-        H*0.12
-
-    );
-
-
-    ctx.fillStyle =
-        "#ff3858";
-
-
-    ctx.fillText(
-
-        "DUEL",
-
-        W/2,
-        H*0.19
-
-    );
-
-
-    ctx.shadowBlur = 0;
-
-}
-
-
-/* =========================
-   GAME LOOP
-========================= */
-
-function gameLoop(){
-
-    ctx.clearRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    drawSky();
-
-    drawMoon();
-
-    drawGround();
-
-    drawArena();
-
-    drawTitle();
-
-
-    requestAnimationFrame(
-        gameLoop
-    );
-
-}
-
-
-gameLoop();
-
+draw();
 </script>
-
 </body>
-  </html>  
+</html>
